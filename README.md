@@ -390,9 +390,13 @@ We eventually concluded that hierarchical based clustering method is the best me
 
 **Supporting Information:**
 Please check these documents for additional information.
+
 Student-Wellness.Rmd: Rmarkdown file that contains the source code.
+
 Student-Wellness-report: Detailed word report of this project.
+
 Physical_fitness.csv: Physical fitness data
+
 Crime.csv: Crime data
 
 **References:** 
