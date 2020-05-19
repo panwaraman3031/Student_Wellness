@@ -395,6 +395,8 @@ Student-Wellness-report: Detailed word report of this project.
 Physical_fitness.csv: Physical fitness data
 Crime.csv: Crime data
 
-**References:** ● Fowler, P. J. et al. (2009). Community violence: A meta-analysis on the effect of exposure and mental health outcomes of children and adolescents. Dev Psychopathol, 21(1), 227−259. 
+**References:** 
+
+● Fowler, P. J. et al. (2009). Community violence: A meta-analysis on the effect of exposure and mental health outcomes of children and adolescents. Dev Psychopathol, 21(1), 227−259. 
 
 ● Takagi, D., Ken'ichi, I., & Kawachi, I. (2012). Neighborhood social capital and crime victimization: Comparison of spatial regression analysis. Soc Sci Med. 75(10), 1895−902.
