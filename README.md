@@ -389,6 +389,7 @@ plot(merged_data.o[, c(2,7)], col =km$cluster, main = "kmeans Clusters")
 We eventually concluded that hierarchical based clustering method is the best method to segregate our observations into two clusters because it was evident in its plot that there was clear separation between the observations from two clusters. Although, in the absence of information on true clusters, it is difficult to be completely confident if the data has been well segregated.
 
 **Supporting Information:**
+
 Please check these documents for additional information.
 
 Student-Wellness.Rmd: Rmarkdown file that contains the source code.
