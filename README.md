@@ -261,7 +261,7 @@ rug(merged_data.o$avg_fitness_score, side=1)
 rug(merged_data.o$Violent_crime_total, side = 2)
 text(merged_data.o$avg_fitness_score, merged_data.o$Violent_crime_total, cex = 0.6, labels = abbreviate(merged_data.o$county))
 ```
-![](https://github.com/panwaraman3031/Student-Wellness/blob/master/2.png)
+![](https://github.com/panwaraman3031/Student_Wellness/blob/master/2.png)
 
 **4. Dimension Reduction Analysis**
 
@@ -290,7 +290,7 @@ summary(merged_data.3_pca)
 biplot(merged_data.3_pca, col=c("black", "red"), cex = 0.65)
 ```
 
-![](https://github.com/panwaraman3031/Student-Wellness/blob/master/3.png)
+![](https://github.com/panwaraman3031/Student_Wellness/blob/master/3.png)
 
 ``` r
 merged_data.3_pca$loadings
@@ -346,7 +346,7 @@ hc1 <- hclust(merged_data.3.s, "average")
 plot(rev(hc1$height))
 ```
 
-![](https://github.com/panwaraman3031/Student-Wellness/blob/master/5.png)
+![](https://github.com/panwaraman3031/Student_Wellness/blob/master/5.png)
 
 The screeplot shows that there are 2 clusters in our data.
 
@@ -357,7 +357,7 @@ plot(merged_data.o[, c(2,7)], col = ct, main = "HC Clusters")
 text( merged_data.o[, c(2,7)],labels =abbreviate(merged_data.o$county), col = ct,pch=" ")
 ```
 
-![](https://github.com/panwaraman3031/Student-Wellness/blob/master/6.png)
+![](https://github.com/panwaraman3031/Student_Wellness/blob/master/6.png)
 
 ``` r
 #K-means clustering 
@@ -376,7 +376,7 @@ plot.wgss = function(merged_data.o.1, maxc) {
 plot.wgss(merged_data.o.1, 20)
 ```
 
-![](https://github.com/panwaraman3031/Student-Wellness/blob/master/7.png)
+![](https://github.com/panwaraman3031/Student_Wellness/blob/master/7.png)
 
 ``` r
 km <- kmeans(scale(merged_data.o.1), centers = 3)
@@ -384,7 +384,7 @@ km <- kmeans(scale(merged_data.o.1), centers = 3)
 plot(merged_data.o[, c(2,7)], col =km$cluster, main = "kmeans Clusters") 
 ```
 
-![](https://github.com/panwaraman3031/Student-Wellness/blob/master/8.png)
+![](https://github.com/panwaraman3031/Student_Wellness/blob/master/8.png)
 
 We eventually concluded that hierarchical based clustering method is the best method to segregate our observations into two clusters because it was evident in its plot that there was clear separation between the observations from two clusters. Although, in the absence of information on true clusters, it is difficult to be completely confident if the data has been well segregated.
 
