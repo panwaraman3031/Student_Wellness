@@ -1,0 +1,277 @@
+---
+title: "Student Wellness"
+author: "Aman Panwar"
+output: html_document
+---
+
+**1. Problem Context**
+
+Physical inactivity has been responsible for six percent of the global mortality and it has been ranked as the fourth leading risk factor of death (World Health Organization, 2010). For the age group of 5???17 years, physical activity provides essential health benefits for children and youth (Janssen, 2007; Janssen & Leblanc, 2010; Physical Activity Guidelines Advisory Committee, 2008). In addition, the behaviors related to health during the early teenage years between 11 and 16 years are crucial because the patterns of the health-related habits in their adulthoods emerge at this time (Gregory & Lowe, 2000).
+In this context, the importance of students' health and the necessity to figure out of the factors influencing the students' physical fitness have been emphasizing. Safe neighborhoods that are free of crime and violence are an integral component of healthy neighborhoods. In addition to direct physical and mental impacts of crime, fear of crime and violence inhibit the use of community assets  for physical exercise at nearby parks and playgrounds or walking or bicycling to commute to local destinations for basic needs (Fowler et al., 2009; Takagi, Ken'ichi, & Kawachi, 2012).  
+
+In this project, we decided to use multivariate statistical techniques to obtain deeper insights into the relationship between the rate of crime of an area and physical fitness of students living there.
+
+
+**Datasets:**
+
+Two datasets:physical fitness and crime datasets were used in this project. 
+
+Physical fitness dataset had physical fitness score for students who attended grades five, seven, and nine in California public schools from 1998 to 2018.
+
+Crime dataset had the rate of crime which represents the number of violent crimes per 1,000 population. Four types of crimes (murder, rape, robbery, and assault) and the total number of crimes are reported from years 2000 to 2013 at the geographical levels of city/towns, counties, regions, and state.
+
+
+
+Libraries to perform multivariate analysis
+
+```{r, warning=FALSE,message=FALSE}
+library(dplyr)
+library(reshape2)
+library(imp4p)
+library(MVA)
+library('ResourceSelection')
+library('webshot')
+```
+
+**2. Data Cleaning**
+
+Physical fitness dataset
+```{r}
+#Physical fitness data
+p_fit = read.csv("pfitness.csv")
+#Changes name of the county column to make column name consistent in both datasets
+names(p_fit)[5] <- "county_name"
+
+#Subsets data to include only necessary columns
+p_fit_1  <- p_fit[, c("Year", "county_name", "Grade.Lev", "Percent", "Strata")]
+head(p_fit_1)
+```
+
+```{r}
+#The crime dataset had data for only 14 years so data for all years except 2000-2013 was removed from the physical fitness dataset.
+
+#Removes unnecessary rows from Year columns to get data only for 14 years (2000-2013)
+p_fit_2 <- p_fit_1[!(p_fit_1$Year=="1998-1999"|p_fit_1$Year=="1999-2000"
+                     |p_fit_1$Year=="2014-2015"|p_fit_1$Year=="2015-2016"|p_fit_1$Year=="2016-2017"|p_fit_1$Year=="2017-2018"|    
+                       p_fit_1$county_name == "California"|p_fit_1$county_name == "Ca Education Authority"),]
+
+#Selects data for all students
+p_fit_3 <- subset(p_fit_2, Strata=="None")
+
+#Checks for missing values in each column
+colSums(is.na(p_fit_3))
+```
+
+```{r}
+#County column will be used to merge both datasets
+#Groups data by county
+p_fit_group <- group_by(p_fit_3,county_name)
+
+#Calculates average physical fitness scores for all students from all grades and years and grouped the data by county
+summ_fit <- summarize(p_fit_group, avg_fitness_score =mean(Percent))
+head(summ_fit)
+```
+
+Crime dataset
+```{r}
+#Crime dataset
+v_crime <- read.csv("vcrime-2.csv")
+
+# Selects necessary columns
+v_crime_2 <- v_crime[, c("reportyear", "county_name", "strata_level_name", "geotype", "rate")]
+
+# Subsets data based on county
+v_crime_3 <- subset(v_crime_2, geotype=="CO")
+
+head(v_crime_3)
+```
+
+```{r}
+#converts crime rate from char to numeric
+v_crime_3$rate <- as.numeric(v_crime_3$rate)
+
+#Checks for missing values in each column
+colSums(is.na(v_crime_3))
+```
+
+```{r}
+#groups data by county
+v_crime_group <- group_by(v_crime_3,county_name,strata_level_name )
+head(v_crime_group)
+```
+```{r}
+#summarizes average crime rate for each county for time period between 2000-2013
+summ_crime <- summarize(v_crime_group, avg_crime_rate= mean(rate)) 
+head(summ_crime )
+```
+```{r}
+#summarizes average crime rate for each type of crime for each county 
+v_crime_4 <- dcast(summ_crime, county_name~strata_level_name, value.var = "avg_crime_rate")
+# Change the name of the columns
+colnames(v_crime_4) <- c("county_name", "Aggravated_assault", "Forcible_rape", "Murder",
+                         "Robbery", "Violent_crime_total")
+head(v_crime_4)
+```
+
+**Data merging**
+```{r}
+merged_data <- merge(summ_fit, v_crime_4, by="county_name")
+#removes categorical column to allow replacement of missing values with median
+merged_data.1 <- merged_data[, -1]
+
+#Handling of Missing Values
+
+# Missing value imputation with median
+for(q in 1:ncol(merged_data.1)){
+  merged_data.1[is.na(merged_data.1[,q]),q] <- median(merged_data.1[,q], na.rm=TRUE)
+}
+
+colSums(is.na(merged_data.1))
+#No missing values in merged dataset
+head(merged_data.1)
+```
+
+
+**3. Data Visualization**
+
+
+```{r}
+#Bivariate Boxplot to find the outliers
+county <- merged_data$county_name
+merged_data.2 <- cbind(county,merged_data.1)
+bvbox(merged_data.2[, c("avg_fitness_score","Violent_crime_total")])
+text(merged_data.2[, c("avg_fitness_score", "Violent_crime_total")], labels = abbreviate(merged_data$county_name), cex = 0.7)
+```
+
+
+The bivariate plot indicates that there were 5 outlier counties that needed to be removed to get more reliable results, which increases the reliability of drawn conclusions from this analysis. 
+
+```{r}
+#Removes outliers
+outlier <- match(c("Alpine", "San Joaquin", "Imperial", "El Dorado", "Marin"), merged_data.2$county)
+
+#Dataset without any outliers
+merged_data.o <- merged_data.2[-outlier, ]
+
+#Scatterplot with labels and rugs(scales)
+plot(merged_data.o$avg_fitness_score, merged_data.o$Violent_crime_total)
+rug(merged_data.o$avg_fitness_score, side=1)
+rug(merged_data.o$Violent_crime_total, side = 2)
+text(merged_data.o$avg_fitness_score, merged_data.o$Violent_crime_total, cex = 0.6, labels = abbreviate(merged_data.o$county))
+```
+
+**4. Dimension Reduction Analysis**
+
+There are 6 continuous variables in our dataset, and it can be difficult if someone needs to derive insight from this dataset with several variables. To help overcome this problem, PCA (Principal Component Analysis) was performed to explain the dataset comprehensively with minimum possible variables.PCA was performed on the fitness-crime(merged) dataset with outliers removed from it.
+
+```{r}
+#Removes categorical column for PCA
+merged_data.3 <- merged_data.o[,-1]
+# Principal component analysis
+merged_data.3_pca <- princomp(merged_data.3, cor = T) 
+summary(merged_data.3_pca)
+```
+
+```{r}
+#Biplot for PCA analysis
+biplot(merged_data.3_pca, col=c("black", "red"), cex = 0.65)
+```
+
+```{r}
+merged_data.3_pca$loadings
+```
+
+Interpretation of PCA:
+
+The first two principal components (PC) represents 77% of the total variance and it is therefore enough to use first two PC to represent the original dataset. Based on their respective loadings, PC 1 can be thought to represent all crimes except Forcible_rape and Robbery and PC 2 can be thought to represent Forcible_rape and Robbery. A simple interpretation of PC1 score could be that county with higher PC1 score will have lower crime rates especially for the crimes with higher absolute magnitude of PC loadings and higher physical fitness level. 
+
+
+**4. Cluster Analysis**
+
+We performed cluster analysis for discovering all possible clusters of most possible homogeneous observations in our fitness-crime dataset.
+```{r}
+# Kdepairs plot for detecting clusters
+kdepairs(merged_data.o[,2:7])
+```
+Based on KDE plot, there are one or two clusters in all our data.
+
+We considered two clustering methods:hierarchical and K-means clustering.
+
+In hierarchical clustering, data is not partitioned into particular groups in a single step. The process requires a series of partitions that can run from a single cluster containing all individuals to n clusters, each containing a single individual. This clustering method uses the distance matrix (standardized Euclidean distance) and is based on the choices of distance between groups further divided into three categories: single, complete and average.
+
+```{r}
+# Hierarchical clustering ---- Single, complete,average
+merged_data.o_hc <- hclust(dist(merged_data.3), "single")
+merged_data.o_hc <- hclust(dist(merged_data.3), "complete")
+merged_data.o_hc <- hclust(dist(merged_data.3), "average")
+```
+
+```{r}
+# Constructs scree plot to determine number of hierarchical clusters
+merged_data.3.s <- dist(scale(merged_data.o[,-1]))
+hc1 <- hclust(merged_data.3.s, "average")
+plot(rev(hc1$height))
+```
+The screeplot shows that there are 2 clusters in our data.
+
+```{r}
+ct <- cutree(hc1, 2)
+#plots the clustered data
+plot(merged_data.o[, c(2,7)], col = ct, main = "HC Clusters") 
+text( merged_data.o[, c(2,7)],labels =abbreviate(merged_data.o$county), col = ct,pch=" ")
+```
+```{r}
+#K-means clustering 
+#removes first column
+merged_data.o.1=merged_data.o[,-1]
+
+#scree plot
+maxc = 20
+plot.wgss = function(merged_data.o.1, maxc) {
+  wss = numeric(maxc)
+  for (i in 1:maxc)
+    wss[i] = kmeans(merged_data.o.1, centers=i, nstart = 20)$tot.withinss
+  plot(1:maxc, wss, type="b", xlab="Number of Clusters",
+       ylab="Within groups sum of squares", main="Scree Plot")
+}
+plot.wgss(merged_data.o.1, 20)
+```
+
+```{r}
+
+km <- kmeans(scale(merged_data.o.1), centers = 3)
+
+plot(merged_data.o[, c(2,7)], col =km$cluster, main = "kmeans Clusters") 
+
+```
+
+We eventually concluded that hierarchical based clustering method is the best method to segregate our observations into two clusters because it was evident in its plot that there was clear separation between the observations from two clusters. Although, in the absence of information on true clusters, it is difficult to be completely confident if the data has been well segregated.
+
+
+
+**Supporting Information:**
+
+# Percentage of Physically-fit Students (LGHC Indicator)
+# https://healthdata.gov/dataset/percentage-physically-fit-students-lghc-indicator
+
+# Physical Fitness Testing (PFT)
+# https://www.cde.ca.gov/ta/tg/pf/
+
+# Student Poverty FRPM Data
+# https://www.cde.ca.gov/ds/sd/sd/filessp.asp
+
+# Public Schools and Districts Data Files
+# https://www.cde.ca.gov/ds/si/ds/pubschls.asp
+
+# Violent Crime Rate
+# https://data.ca.gov/dataset/violent-crime-rate
+
+
+**References:**
+●  Fowler, P. J. et al. (2009). Community violence: A meta-analysis on the effect of exposure and mental health outcomes of children and adolescents. Dev Psychopathol, 21(1), 227−259.
+● Takagi, D., Ken'ichi, I., & Kawachi, I. (2012). Neighborhood social capital and crime victimization: Comparison of spatial regression analysis. Soc Sci Med. 75(10), 1895−902.
+
+
+
+
+
