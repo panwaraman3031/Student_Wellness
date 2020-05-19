@@ -243,7 +243,7 @@ bvbox(merged_data.2[, c("avg_fitness_score","Violent_crime_total")])
 text(merged_data.2[, c("avg_fitness_score", "Violent_crime_total")], labels = abbreviate(merged_data$county_name), cex = 0.7)
 ```
 
-![](https://github.com/panwaraman3031/Student-Wellness/blob/master/1.png)
+![](https://github.com/panwaraman3031/Student_Wellness/blob/master/1.png)
 
 
 The bivariate plot indicates that there were 5 outlier counties that needed to be removed to get more reliable results, which increases the reliability of drawn conclusions from this analysis.
@@ -324,7 +324,7 @@ We performed cluster analysis for discovering all possible clusters of most poss
 kdepairs(merged_data.o[,2:7])
 ```
 
-![](https://github.com/panwaraman3031/Student-Wellness/blob/master/4.png)
+![](https://github.com/panwaraman3031/Student_Wellness/blob/master/4.png)
 
 Based on KDE plot, there are one or two clusters in all our data.
 
