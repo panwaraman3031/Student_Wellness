@@ -35,7 +35,7 @@ Physical fitness dataset
 
 ``` r
 #Physical fitness data
-p_fit = read.csv("pfitness.csv")
+p_fit = read.csv("Physical_fitness.csv")
 #Changes name of the county column to make column name consistent in both datasets
 names(p_fit)[5] <- "county_name"
 
@@ -94,7 +94,7 @@ Crime dataset
 
 ``` r
 #Crime dataset
-v_crime <- read.csv("vcrime-2.csv")
+v_crime <- read.csv("crime.csv")
 
 # Selects necessary columns
 v_crime_2 <- v_crime[, c("reportyear", "county_name", "strata_level_name", "geotype", "rate")]
