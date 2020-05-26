@@ -12,7 +12,7 @@ In this project, we decided to use multivariate statistical techniques to obtain
 
 **Datasets:**
 
-Two datasets:physical fitness and crime datasets were used in this project.
+Two datasets: physical fitness and crime datasets were used in this project.
 
 Physical fitness dataset had physical fitness score for students who attended grades five, seven, and nine in California public schools from 1998 to 2018.
 
